@@ -4,6 +4,8 @@ require('dotenv').config();
 const welcome = require('./modules/welcome')
 const leave = require('./modules/leave')
 const rolldice = require('./jdr_modules/roledice')
+const addCharacter = require('./jdr_modules/addCharacter')
+const createGame = require('./jdr_modules/createGame')
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -36,12 +38,22 @@ leave(client)
 
 client.login(process.env.BOT_ID);
 
-client.on("messageCreate", message => {
-    if (message.content === "salut" || message.content === "Salut") {
-        client.channels.cache.get("1075493671954288640").send("Je suis là")
-    }
-});
+// client.on("messageCreate", message => {
+//     if (message.author.id === "108160112950059008") {
+//         client.channels.cache.get(message.channelId).send("Tu es beau")
+//     }
 
+//     if (message.author.id === "117315231511871490") {
+//         client.channels.cache.get(message.channelId).send("Mon grand maitre")
+//     }
+
+//     if (message.content === "<@108160112950059008>") {
+//         console.log(message);
+//         client.channels.cache.get(message.channelId).send("<@108160112950059008>")
+//     }
+// });
+
+// 108160112950059008
 // client.on("ready", async () => {
 
 //   await client.application.commands.set([

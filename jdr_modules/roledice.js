@@ -26,11 +26,9 @@ client.on('ready', () => {
 });
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
-
     if (interaction.commandName === 'd') {
         let nombre = interaction.options.getInteger('nombre');
         let resultat = Math.floor(Math.random() * nombre) + 1;
-        // const reponse = `Vous avez roulé un dé à ${nombre} faces et obtenu ${resultat} !`;
         if (resultat == 1) {
             let reponse = `Vous avez roulé un dé à ${nombre} faces et obtenu ${resultat} ! C'est un fumble !`;
             await interaction.reply(reponse);
