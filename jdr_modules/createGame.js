@@ -23,9 +23,17 @@ client.on('ready', () => {
 
     client.application.commands.create(command)
 });
+
 client.on('interactionCreate', async interaction => {
 
     if (!interaction.isCommand()) return;
+
+    for (const key in interaction.options._hoistedOptions) {
+        if (interaction.options._hoistedOptions[key].value.length > 256) {
+            interaction.reply("Rentrez des entrées valides");
+            return;
+        }
+    }
 
     if (interaction.commandName === 'creerpartie') {
         if (await CampagneModel.findOne({ name: interaction.options.getString('nomdelacampagne') })) {
@@ -37,9 +45,10 @@ client.on('interactionCreate', async interaction => {
             gameMasterId: interaction.user.id,
             gameMasterName: interaction.user.username,
         }
+
         let campagne = new CampagneModel(body)
         campagne.save()
-        interaction.reply("Campagne créée");
+        interaction.reply(`Campagne "${body.name}" créée`);
     }
 
 });

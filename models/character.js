@@ -5,6 +5,10 @@ const characterSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Pas de nom saisi'],
     },
+    player: {
+        type: String,
+        required: [true, 'Pas de joueur saisi'],
+    },
     race: {
         type: String,
         required: [true, 'Pas de race saisi'],
@@ -20,12 +24,12 @@ const characterSchema = new mongoose.Schema({
     level: {
         type: Number,
         required: [true, "Pas de level saisi"],
-        default : 1,
+        default: 1,
     },
     experience: {
         type: Number,
         required: [true, "Pas d'experience saisi"],
-        default : 0,
+        default: 0,
     },
     alignment: {
         type: String,
@@ -55,10 +59,16 @@ const characterSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Pas de sagesse saisi"]
     },
-    campagneId: {
-        type: String,
+//     inventory: {
+//         sous : {
+//             type:Array,
+// }
+        
+//     },
+campagneId: {
+    type: String,
         required: [true, "Pas de sagesse saisi"]
-    },
+},
 
 
 })

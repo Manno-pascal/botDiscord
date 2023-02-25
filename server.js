@@ -6,6 +6,7 @@ const leave = require('./modules/leave')
 const rolldice = require('./jdr_modules/roledice')
 const addCharacter = require('./jdr_modules/addCharacter')
 const createGame = require('./jdr_modules/createGame')
+// const inventory = require('./jdr_modules/inventory')
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,

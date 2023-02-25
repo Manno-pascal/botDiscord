@@ -21,9 +21,13 @@ client.on('ready', () => {
             option.setName('nomdelacampagne')
                 .setDescription("Nom de la table")
                 .setRequired(true))
-        .addStringOption(option =>
-            option.setName('nomdujoueur')
+        .addUserOption(option =>
+            option.setName('joueur')
                 .setDescription("Nom du joueur")
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('nomdupersonnage')
+                .setDescription("Nom du personnage")
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('racedupersonnage')
@@ -73,6 +77,14 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
 
+    for (const key in interaction.options._hoistedOptions) {
+        if (interaction.options._hoistedOptions[key].value.length > 256) {
+            interaction.reply("Rentrez des entrées valides");
+            return;
+        }
+    }
+
+
 
 
 
@@ -85,13 +97,16 @@ client.on('interactionCreate', async interaction => {
             interaction.reply("Seul le maitre du jeu peut effectuer cet ajout");
             return;
         }
-    
-        if (await CharacterModel.findOne({ campagneId: (await CampagneModel.findOne({ name: interaction.options.getString('nomdelacampagne') }))._id, name: interaction.options.getString('nomdujoueur') })) {
+
+        if (await CharacterModel.findOne({ campagneId: (await CampagneModel.findOne({ name: interaction.options.getString('nomdelacampagne') }))._id, name: interaction.options.getString('nomdupersonnage') })) {
             interaction.reply("Personnage déjà existant");
             return;
         }
+
+
         let body = {
-            name: interaction.options.getString('nomdujoueur'),
+            name: interaction.options.getString('nomdupersonnage'),
+            player: interaction.options.getUser('joueur'),
             class: interaction.options.getString('classedupersonnage'),
             race: interaction.options.getString('racedupersonnage'),
             healthPoints: interaction.options.getInteger('pointsdevie'),
@@ -103,13 +118,21 @@ client.on('interactionCreate', async interaction => {
             constitution: interaction.options.getInteger('constitution'),
             wisdom: interaction.options.getInteger('sagesse')
         }
+
+        for (const key in body) {
+            if (key.length > 256) {
+                interaction.reply("Rentrez des entrées valides");
+                return;
+            }
+        }
+
         let character = new CharacterModel(body)
 
         await CampagneModel.updateOne({ name: interaction.options.getString('nomdelacampagne') }, { $push: { characters: character._id } })
         character.campagneId = (await CampagneModel.findOne({ name: interaction.options.getString('nomdelacampagne') }))._id
 
         character.save()
-        interaction.reply("Personnage ajouté avec succés");
+        interaction.reply(`${body.name} ajouté avec succés`);
 
 
     }
