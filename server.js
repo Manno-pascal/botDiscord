@@ -1,151 +1,82 @@
-const { createAudioPlayer, createAudioResource, joinVoiceChannel } = require('@discordjs/voice');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits } = require("discord.js");
+const mongoose = require('mongoose');
 const ytdl = require('ytdl-core');
 require('dotenv').config();
-
+const welcome = require('./modules/welcome')
+const leave = require('./modules/leave')
+const rolldice = require('./jdr_modules/roledice')
+const addCharacter = require('./jdr_modules/addCharacter')
+const createGame = require('./jdr_modules/createGame')
+const addItem = require('./jdr_modules/addItem')
+const addMusic = require('./music_modules/addMusic.js')
+// const editItem = require('./jdr_modules/editItem')
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildVoiceStates,
     ]
 });
 
-client.on('messageCreate', async message => {
-    if (!message.guild) return;
+const db = process.env.BDD_URL
 
-    if (message.content.startsWith('!play')) {
-        const args = message.content.split(' ');
-        const voiceChannel = message.member.voice.channel;
 
-        if (!voiceChannel) {
-            return message.reply('Veuillez rejoindre un canal vocal pour que je puisse jouer de la musique !');
-        }
 
-        const permissions = voiceChannel.permissionsFor(message.client.user);
-
-        if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-            return message.reply('Je n\'ai pas la permission de rejoindre ce canal vocal et de jouer de la musique !');
-        }
-
-        const songInfo = await ytdl.getInfo(args[1]);
-        const song = {
-            title: songInfo.videoDetails.title,
-            url: songInfo.videoDetails.video_url,
-        };
-
-        const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: voiceChannel.guild.id,
-            adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        });
-
-        const stream = ytdl(song.url, { filter: 'audioonly' });
-        const resource = createAudioResource(stream);
-        const player = createAudioPlayer();
-
-        connection.subscribe(player);
-        player.play(resource);
-
-        player.on('error', error => {
-            console.error(error);
-        });
-
-        player.on('stateChange', (oldState, newState) => {
-            if (newState.status === 'idle') {
-                voiceChannel.leave();
-            }
-        });
-
-        message.channel.send(`En train de jouer : **${song.title}**`);
-    }
+client.on("ready", () => {
+    console.log("Connected on La gueuserie")
 });
 
-client.login(process.env.BOT_ID);
+mongoose.set('strictQuery', false);
+mongoose.connect(db, (err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("MongoDB connected");
+    }
+})
+
+welcome(client)
+leave(client)
 
 
-
-// const { Client, GatewayIntentBits } = require("discord.js");
-// const mongoose = require('mongoose');
-// const ytdl = require('ytdl-core');
-// require('dotenv').config();
-// const welcome = require('./modules/welcome')
-// const leave = require('./modules/leave')
-// const rolldice = require('./jdr_modules/roledice')
-// const addCharacter = require('./jdr_modules/addCharacter')
-// const createGame = require('./jdr_modules/createGame')
-// const addItem = require('./jdr_modules/addItem')
-// // const editItem = require('./jdr_modules/editItem')
-// const client = new Client({
-//     intents: [
-//         GatewayIntentBits.Guilds,
-//         GatewayIntentBits.GuildMessages,
-//         GatewayIntentBits.MessageContent,
-//         GatewayIntentBits.GuildMembers,
-//     ]
-// });
-
-// const db = process.env.BDD_URL
-
-
-
-// client.on("ready", () => {
-//     console.log("Connected on La gueuserie")
-// });
-
-// mongoose.set('strictQuery', false);
-// mongoose.connect(db, (err) => {
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         console.log("MongoDB connected");
-//     }
-// })
-
-// welcome(client)
-// leave(client)
-
-
-// client.on('messageCreate', async message => {
-//     console.log("test");
-//   if (!message.guild) return;
+client.on('messageCreate', async message => {
+    console.log("test");
+  if (!message.guild) return;
   
-//   if (message.content.startsWith('!play')) {
-//     const args = message.content.split(' ');
-//     const voiceChannel = message.member.voice.channel;
+  if (message.content.startsWith('!play')) {
+    const args = message.content.split(' ');
+    const voiceChannel = message.member.voice.channel;
     
-//     if (!voiceChannel) {
-//       return message.reply('Veuillez rejoindre un canal vocal pour que je puisse jouer de la musique !');
-//     }
+    if (!voiceChannel) {
+      return message.reply('Veuillez rejoindre un canal vocal pour que je puisse jouer de la musique !');
+    }
     
-//     const permissions = voiceChannel.permissionsFor(message.client.user);
+    const permissions = voiceChannel.permissionsFor(message.client.user);
     
-//     if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-//       return message.reply('Je n\'ai pas la permission de rejoindre ce canal vocal et de jouer de la musique !');
-//     }
+    if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
+      return message.reply('Je n\'ai pas la permission de rejoindre ce canal vocal et de jouer de la musique !');
+    }
     
-//     const songInfo = await ytdl.getInfo(args[1]);
-//     const song = {
-//       title: songInfo.videoDetails.title,
-//       url: songInfo.videoDetails.video_url,
-//     };
+    const songInfo = await ytdl.getInfo(args[1]);
+    const song = {
+      title: songInfo.videoDetails.title,
+      url: songInfo.videoDetails.video_url,
+    };
     
-//     voiceChannel.join().then(connection => {
-//       const stream = ytdl(song.url, { filter: 'audioonly' });
-//       const dispatcher = connection.play(stream);
+    voiceChannel.join().then(connection => {
+      const stream = ytdl(song.url, { filter: 'audioonly' });
+      const dispatcher = connection.play(stream);
       
-//       dispatcher.on('finish', () => voiceChannel.leave());
+      dispatcher.on('finish', () => voiceChannel.leave());
       
-//       message.channel.send(`En train de jouer : **${song.title}**`);
-//     });
-//   }
-// });
+      message.channel.send(`En train de jouer : **${song.title}**`);
+    });
+  }
+});
 
 
-// client.login(process.env.BOT_ID);
+client.login(process.env.BOT_ID);
 
 // // client.on("messageCreate", message => {
 // //     if (message.author.id === "108160112950059008") {
