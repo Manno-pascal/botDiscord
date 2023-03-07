@@ -59,12 +59,9 @@ const characterSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Pas de sagesse saisi"]
     },
-//     inventory: {
-//         sous : {
-//             type:Array,
-// }
-        
-//     },
+    inventory: {
+        type:Array,     
+    },
 campagneId: {
     type: String,
         required: [true, "Pas de sagesse saisi"]
